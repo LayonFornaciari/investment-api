@@ -8,10 +8,11 @@ class AssetBase(BaseModel):
     ticker: str
     quantity: int
 
-
 class AssetCreate(AssetBase):
     pass
 
+class AssetUpdate(BaseModel):
+    quantity: int
 
 class AssetResponse(AssetBase):
     id: int

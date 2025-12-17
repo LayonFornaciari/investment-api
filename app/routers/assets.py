@@ -34,7 +34,7 @@ def add_asset(portfolio_id: int, asset: schemas.AssetCreate, db: Session = Depen
 
 # 2. EDITAR QUANTIDADE (PUT) - ⚠️ ROTA OBRIGATÓRIA PARA A BANCA
 @router.put("/assets/{id}", response_model=schemas.AssetResponse)
-def update_asset(id: int, asset_update: schemas.AssetBase, db: Session = Depends(get_db)):
+def update_asset(id: int, asset_update: schemas.AssetUpdate, db: Session = Depends(get_db)):
     # Busca o ativo pelo ID
     asset = db.query(models.Asset).filter(models.Asset.id == id).first()
 
