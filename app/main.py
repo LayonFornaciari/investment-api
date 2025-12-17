@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.database import Base, engine
 from app.models import Portfolio, Asset  # noqa: F401
-from app.routers import portfolios, assets
+from app.routers import portfolios, assets, market
 
 
 @asynccontextmanager
@@ -17,6 +17,7 @@ app = FastAPI(
 
 app.include_router(portfolios.router)
 app.include_router(assets.router)
+app.include_router(market.router)
 
 @app.get("/")
 def health_check():
