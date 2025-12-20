@@ -1,18 +1,20 @@
 from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 # --- ASSETS (Precisamos definir antes para usar no Portfolio) ---
 class AssetBase(BaseModel):
     ticker: str
-    quantity: int
+    quantity: int = Field(..., gt=0)
 
 class AssetCreate(AssetBase):
     pass
 
 class AssetUpdate(BaseModel):
-    quantity: int
+    quantity: int = Field(..., gt=0, description="Quantidade deve ser maior que zero")
+
 
 class AssetResponse(AssetBase):
     id: int
