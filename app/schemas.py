@@ -12,9 +12,8 @@ class AssetBase(BaseModel):
 class AssetCreate(AssetBase):
     pass
 
-class AssetUpdate(BaseModel):
-    quantity: int = Field(..., gt=0, description="Quantidade deve ser maior que zero")
-
+class AssetSell(BaseModel):
+    quantity: float
 
 class AssetResponse(AssetBase):
     id: int

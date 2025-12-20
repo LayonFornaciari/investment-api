@@ -53,14 +53,26 @@ def buy_asset(
 
     return new_asset
 
-# 3. REMOVER ATIVO
-@router.delete("/assets/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_asset(id: int, db: Session = Depends(get_db)):
+@router.post("/assets/{id}/sell")
+def sell_asset(id: int, sell_data: schemas.AssetSell, db: Session = Depends(get_db)):
+    # 1. Busca o ativo
     asset = db.query(models.Asset).filter(models.Asset.id == id).first()
-
     if not asset:
         raise HTTPException(status_code=404, detail="Ativo não encontrado")
 
-    db.delete(asset)
-    db.commit()
-    return None
+    # 2. Verifica se tem saldo suficiente
+    if sell_data.quantity > asset.quantity:
+        raise HTTPException(status_code=400, detail="Quantidade insuficiente para venda")
+
+    # 3. Subtrai a quantidade
+    asset.quantity -= sell_data.quantity
+
+    # 4. Se zerou, deleta o registro. Se sobrou, atualiza.
+    if asset.quantity <= 0:
+        db.delete(asset)
+        db.commit()
+        return {"message": "Ativo vendido completamente e removido"}
+    else:
+        db.commit()
+        db.refresh(asset)
+        return asset
