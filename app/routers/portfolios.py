@@ -71,3 +71,26 @@ def get_portfolio_details(id: int, db: Session = Depends(get_db)):
     portfolio.insight = insight_text
 
     return portfolio
+
+@router.put("/{id}", response_model=schemas.PortfolioResponse)
+def update_portfolio(id: int, portfolio_update: schemas.PortfolioUpdate, db: Session = Depends(get_db)):
+    portfolio = db.query(models.Portfolio).filter(models.Portfolio.id == id).first()
+
+    if not portfolio:
+        raise HTTPException(status_code=404, detail="Portfolio não encontrado")
+
+    portfolio.name = portfolio_update.name
+    db.commit()
+    db.refresh(portfolio)
+    return portfolio
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_portfolio(id: int, db: Session = Depends(get_db)):
+    portfolio = db.query(models.Portfolio).filter(models.Portfolio.id == id).first()
+
+    if not portfolio:
+        raise HTTPException(status_code=404, detail="Portfolio não encontrado")
+
+    db.delete(portfolio)
+    db.commit()
+    return None

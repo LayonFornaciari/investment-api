@@ -34,6 +34,8 @@ class PortfolioBase(BaseModel):
 class PortfolioCreate(PortfolioBase):
     pass
 
+class PortfolioUpdate(BaseModel):
+    name: str
 
 class PortfolioResponse(PortfolioBase):
     id: int
