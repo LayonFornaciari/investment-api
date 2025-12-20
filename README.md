@@ -107,3 +107,68 @@ Os dados consolidados da carteira são enviados para a **Groq Cloud**, utilizand
 - **IA Generativa:** Groq SDK (Llama-3.3-70b-versatile)  
 
 ---
+
+## 📂 Estrutura do Projeto
+
+A organização de pastas segue o padrão de separação de responsabilidades:
+
+```text
+/app
+├── /routers      # Endpoints da API (Controllers)
+│   ├── assets.py
+│   └── portfolios.py
+├── /services     # Regras de Negócio e Integrações Externas
+│   ├── advisor.py      <-- Lógica da IA (Groq)
+│   └── market_service.py <-- Integração Yahoo Finance
+├── /models       # Modelos de Banco de Dados (SQLAlchemy)
+├── /schemas      # Modelos de Validação/Resposta (Pydantic)
+├── database.py   # Configuração da Sessão do Banco
+└── main.py       # Ponto de entrada da aplicação
+```
+
+---
+
+## 🚀 Como Rodar o Projeto
+
+Você pode rodar a aplicação de duas formas: via **Docker** (Recomendado para isolamento) ou **Localmente**.
+
+### Opção A: Via Docker (Recomendado)
+
+Garanta que você tem o Docker instalado. Esta opção garante que o ambiente seja idêntico ao de desenvolvimento.
+
+1.  **Construir a Imagem:**
+    ```bash
+    docker build -t crypto-backend .
+    ```
+
+2.  **Rodar o Container:**
+    ```bash
+    docker run -p 8000:8000 crypto-backend
+    ```
+
+A API estará disponível em: `http://localhost:8000`
+
+### Opção B: Rodar Localmente (Python)
+
+Caso prefira rodar diretamente no Python:
+
+1.  **Instalar Dependências:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+2.  **Executar o Servidor:**
+    ```bash
+    uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ```
+
+---
+
+## 📖 Documentação da API (Swagger UI)
+
+O FastAPI gera documentação automática e interativa. Após rodar o projeto, acesse:
+
+👉 **[http://localhost:8000/docs](http://localhost:8000/docs)**
+
+Lá você poderá testar todos os endpoints (GET, POST, PUT, DELETE) diretamente pelo navegador.
+
