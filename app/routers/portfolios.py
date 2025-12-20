@@ -1,12 +1,20 @@
-from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from typing import List
 
-from app import schemas, models
 from app.database import get_db
-from app.services import market_service  # <--- Importamos o serviço
+from app import models, schemas
+from app.services import market_service, advisor
 
-router = APIRouter(prefix="/portfolios", tags=["Portfolios"])
+router = APIRouter(
+    prefix="/portfolios",
+    tags=["Portfolios"]
+)
+
+@router.get("/", response_model=List[schemas.PortfolioResponse])
+def get_all_portfolios(db: Session = Depends(get_db)):
+    portfolios = db.query(models.Portfolio).all()
+    return portfolios
 
 
 @router.post("/", response_model=schemas.PortfolioResponse, status_code=status.HTTP_201_CREATED)
@@ -18,50 +26,48 @@ def create_portfolio(portfolio: schemas.PortfolioCreate, db: Session = Depends(g
     return new_portfolio
 
 
-@router.get("/", response_model=List[schemas.PortfolioResponse])
-def list_portfolios(db: Session = Depends(get_db)):
-    return db.query(models.Portfolio).all()
-
-
 @router.get("/{id}", response_model=schemas.PortfolioResponse)
-def get_portfolio(id: int, db: Session = Depends(get_db)):
+def get_portfolio_details(id: int, db: Session = Depends(get_db)):
+    # 1. Busca a carteira no banco
     portfolio = db.query(models.Portfolio).filter(models.Portfolio.id == id).first()
 
     if not portfolio:
         raise HTTPException(status_code=404, detail="Portfolio não encontrado")
 
-    # --- LÓGICA DE NEGÓCIO REAL ---
-    total_value = 0.0
-    asset_details = []  # Lista auxiliar para calcular concentração
+    # 2. Lógica de Atualização em Tempo Real
+    total_portfolio_value = 0.0
+    asset_list_for_advisor = []
 
-    # Itera sobre os ativos do banco e busca preço atualizado
     for asset in portfolio.assets:
-        # Chama nosso serviço (com Cache)
-        price = market_service.get_current_price(asset.ticker)
+        try:
+            # Pega preço atualizado (Yahoo)
+            current_price = market_service.get_current_price(asset.ticker)
 
-        # Calcula valor total deste ativo
-        position_value = price * asset.quantity
+            # Calcula valor total deste ativo
+            asset_total = current_price * asset.quantity
 
-        # Preenche os campos virtuais do Schema (não salva no banco, só na resposta)
-        asset.current_price = price
-        asset.total_value = position_value
+            # Injeta esses valores no objeto asset
+            asset.current_price = current_price
+            asset.total_value = asset_total
 
-        total_value += position_value
-        asset_details.append({"ticker": asset.ticker, "value": position_value})
+            # Soma no total da carteira
+            total_portfolio_value += asset_total
 
-    portfolio.total_value = total_value
+            # Guarda dados para o Advisor analisar
+            asset_list_for_advisor.append({
+                "ticker": asset.ticker,
+                "total_value": asset_total
+            })
 
-    # --- GERADOR DE INSIGHT AUTOMÁTICO ---
-    if total_value > 0:
-        # Encontra o ativo com maior valor na carteira
-        top_asset = max(asset_details, key=lambda x: x["value"])
-        concentration = (top_asset["value"] / total_value) * 100
+        except Exception as e:
+            print(f"Erro ao atualizar {asset.ticker}: {e}")
+            asset.current_price = 0.0
+            asset.total_value = 0.0
 
-        if concentration > 50:
-            portfolio.insight = f"⚠️ Alerta: {concentration:.1f}% do seu capital está concentrado em {top_asset['ticker']}."
-        else:
-            portfolio.insight = "✅ Parabéns! Sua carteira está bem diversificada."
-    else:
-        portfolio.insight = "Sua carteira está vazia. Adicione ativos."
+    # 3. Injeta o valor total calculado na resposta
+    portfolio.total_value = total_portfolio_value
+
+    insight_text = advisor.analyze_portfolio(asset_list_for_advisor, total_portfolio_value)
+    portfolio.insight = insight_text
 
     return portfolio
