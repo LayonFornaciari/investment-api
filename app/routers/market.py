@@ -1,10 +1,13 @@
 from fastapi import APIRouter, HTTPException
 from app.services import market_service
 
-router = APIRouter(tags=["Market Data"])
+router = APIRouter(
+    prefix="/market",
+    tags=["Market Data"]
+)
 
+@router.get("/{ticker}")
 
-@router.get("/market/{ticker}")
 def get_market_price(ticker: str):
     """
     Retorna o preço atual.
