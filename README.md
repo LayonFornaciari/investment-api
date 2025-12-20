@@ -143,7 +143,7 @@ Garanta que você tem o Docker instalado. Esta opção garante que o ambiente se
 
 2.  **Rodar o Container:**
     ```bash
-    docker run -p 8000:8000 finsight-backend
+    docker run --name finsight-backend-container -p 8000:8000 finsight-backend
     ```
 
 A API estará disponível em: `http://localhost:8000`
