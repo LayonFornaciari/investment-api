@@ -11,9 +11,23 @@ router = APIRouter(
     tags=["Portfolios"]
 )
 
+
 @router.get("/", response_model=List[schemas.PortfolioResponse])
 def get_all_portfolios(db: Session = Depends(get_db)):
     portfolios = db.query(models.Portfolio).all()
+
+    for portfolio in portfolios:
+        calculated_total = 0.0
+        for asset in portfolio.assets:
+            try:
+                price = market_service.get_current_price(asset.ticker)
+                calculated_total += (price * asset.quantity)
+            except Exception:
+                price = asset.current_price if asset.current_price else 0.0
+                calculated_total += (price * asset.quantity)
+
+        portfolio.total_value = calculated_total
+
     return portfolios
 
 
