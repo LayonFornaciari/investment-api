@@ -1,4 +1,4 @@
-# 🚀 FinSight API — Intelligent Investment Backend
+# 🚀 FinSight API — Back-end de Investimento Inteligente
 
 ![Python Version](https://img.shields.io/badge/python-3.11-blue?style=for-the-badge&logo=python)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=for-the-badge&logo=fastapi)
@@ -56,7 +56,6 @@ Consulta o **Yahoo Finance** via `yfinance` para obter o preço atual dos ativos
 ### 📐 Portfolio Calculation
 Consolida automaticamente:
 - Quantidades por ativo  
-- Exposição percentual  
 - Valor total da carteira  
 
 Esses cálculos são feitos no backend, garantindo consistência e segurança.
@@ -116,12 +115,13 @@ A organização de pastas segue o padrão de separação de responsabilidades:
 /app
 ├── /routers      # Endpoints da API (Controllers)
 │   ├── assets.py
+│   ├── market.py
 │   └── portfolios.py
 ├── /services     # Regras de Negócio e Integrações Externas
 │   ├── advisor.py      <-- Lógica da IA (Groq)
 │   └── market_service.py <-- Integração Yahoo Finance
 ├── /models       # Modelos de Banco de Dados (SQLAlchemy)
-├── /schemas      # Modelos de Validação/Resposta (Pydantic)
+├── schemas.py    # Modelos de Validação/Resposta (Pydantic)
 ├── database.py   # Configuração da Sessão do Banco
 └── main.py       # Ponto de entrada da aplicação
 ```
