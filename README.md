@@ -91,8 +91,28 @@ Os dados consolidados da carteira são enviados para a **Groq Cloud**, utilizand
 
 ### 🧠 Análise Inteligente
 - Endpoint dedicado para análise de risco  
-- Avaliação da diversificação da carteira via **LLM (Llama 3.3)**  
+- Avaliação da diversificação da carteira via **LLM (Llama 3.3)**
 
+---
+
+## 🌐 Integração com APIs Externas
+
+Conforme requisitos do MVP, detalhamos abaixo o uso de serviços externos:
+
+### 1. Yahoo Finance (via biblioteca `yfinance`)
+* **Propósito:** Obtenção de cotações de ativos em tempo real.
+* **Licença/Custo:** Uso gratuito via biblioteca pública (Open Source). Não requer chave de API para o volume de requisições deste MVP.
+* **Rotas/Dados Utilizados:**
+    * `Ticker.history(period="1d")`: Para capturar o preço de fechamento mais recente.
+    * `Ticker.info`: Para validar a existência do símbolo do ativo.
+
+### 2. Groq Cloud AI
+* **Propósito:** Geração de análise de risco e consultoria financeira.
+* **Modelo:** `llama-3.3-70b-versatile` (LLM da Meta).
+* **Autenticação:** Requer API Key (Configurada internamente para avaliação).
+* **Rota Utilizada:**
+    * `client.chat.completions.create`: Envio do JSON da carteira e recebimento da análise textual.
+ 
 ---
 
 ## 🛠️ Tech Stack
