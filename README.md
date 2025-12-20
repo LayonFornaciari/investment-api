@@ -138,12 +138,12 @@ Garanta que você tem o Docker instalado. Esta opção garante que o ambiente se
 
 1.  **Construir a Imagem:**
     ```bash
-    docker build -t crypto-backend .
+    docker build -t finsight-backend .
     ```
 
 2.  **Rodar o Container:**
     ```bash
-    docker run -p 8000:8000 crypto-backend
+    docker run -p 8000:8000 finsight-backend
     ```
 
 A API estará disponível em: `http://localhost:8000`
